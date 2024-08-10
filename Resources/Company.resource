@@ -6,18 +6,17 @@ Resource              Login.resource
 Resource              Utils.resource
 
 *** Variables ***
-${BASE_URL}    https://chips.qacoders-academy.com.br
-${ENDPOINT}    /api/company/
 ${COMPANY_ID}
+${CNPJ}
 
 
 *** Keywords ***
-Preparar para cadastro
+Logar como administrador
     Realizar Login    mail=sysadmin@qacoders.com    password=1234@Test
     
-Preparar para edicao
-    Preparar para cadastro
-    Cadastrar empresa
+Criar massa de teste
+    Logar como administrador
+    Cadastrar empresa com sucesso
 
 Gerar endereco empresa
     ${state}         FakerBR.State Abbr
@@ -63,8 +62,10 @@ Gerar dados empresa
     RETURN    &{dadosEmpresa}
 
 Gerar empresa
-    &{endereco}    Gerar endereco empresa
-    @{listaDeEnderecos}    Create List    ${endereco}
+    &{endereco1}    Gerar endereco empresa
+    &{endereco2}    Gerar endereco empresa
+    &{endereco3}    Gerar endereco empresa
+    @{listaDeEnderecos}    Create List    ${endereco1}    ${endereco2}    ${endereco3}
 
     &{empresa}    Gerar dados empresa
     Set To Dictionary    ${empresa}    address=${listaDeEnderecos}        
@@ -73,15 +74,45 @@ Gerar empresa
     RETURN    ${empresa}   
     
 
-Cadastrar empresa
+Cadastrar empresa com sucesso
     ${requestJson}    Gerar empresa
-    ${response}    POST On Session    alias=sessao    url=https://chips.qacoders-academy.com.br/api/company/    json=${requestJson}    expected_status=201
-    Set Suite Variable    ${COMPANY_ID}    ${response.json()}[newCompany][_id]
+    ${response}    POST On Session    alias=sessao    url=${BASE_URL}/api/company    json=${requestJson}    expected_status=201    
+    Set Test Variable    ${COMPANY_ID}    ${response.json()}[newCompany][_id]
+    Set Test Variable    ${CNPJ}    ${response.json()}[newCompany][registerCompany]
+    Log To Console    ****Setou o CNPJ para: ${CNPJ}****
     Logar requisicoes    CT_CCA_P01 - Cadastrar empresa com sucesso    ${requestJson}    ${response.text}
+
+    Should Be Equal As Strings        ${response.json()}[msg]                  Olá a companhia ${requestJson}[corporateName] foi cadastrada com sucesso.
+    Should Be Equal As Strings        ${requestJson}[corporateName]            ${response.json()}[newCompany][corporateName]
+    Should Be Equal As Strings        ${requestJson}[registerCompany]          ${response.json()}[newCompany][registerCompany]
+    Should Be Equal As Strings        ${requestJson}[responsibleContact]       ${response.json()}[newCompany][responsibleContact]
+    Should Be Equal As Strings        ${requestJson}[mail]                     ${response.json()}[newCompany][mail]
+    Should Be Equal As Strings        ${requestJson}[telephone]                ${response.json()}[newCompany][telephone]
+    Should Be Equal As Strings        ${requestJson}[serviceDescription]       ${response.json()}[newCompany][serviceDescription]
+    Should Be Equal As Strings        ${requestJson}[matriz]                   ${response.json()}[newCompany][matriz]
+    Dictionary Should Contain Key     dictionary=${response.json()}[newCompany]    key=_id
+    
+    FOR    ${index}    ${address}    IN ENUMERATE    ${requestJson}[address]        
+        Should Be Equal As Strings    ${address}[${index}][zipCode]             ${response.json()}[newCompany][address][${index}][zipCode]
+        Should Be Equal As Strings    ${address}[${index}][city]                ${response.json()}[newCompany][address][${index}][city]
+        Should Be Equal As Strings    ${address}[${index}][state]               ${response.json()}[newCompany][address][${index}][state]
+        Should Be Equal As Strings    ${address}[${index}][district]            ${response.json()}[newCompany][address][${index}][district]
+        Should Be Equal As Strings    ${address}[${index}][street]              ${response.json()}[newCompany][address][${index}][street]
+        Should Be Equal As Strings    ${address}[${index}][number]              ${response.json()}[newCompany][address][${index}][number]
+        Should Be Equal As Strings    ${address}[${index}][complement]          ${response.json()}[newCompany][address][${index}][complement]
+        Should Be Equal As Strings    ${address}[${index}][country]             ${response.json()}[newCompany][address][${index}][country]    
+    END 
+
+Cadastrar empresa com CNPJ existente
+    ${requestJson}    Gerar empresa
+    Set To Dictionary    ${requestJson}    registerCompany=${CNPJ} 
+    ${response}    POST On Session    alias=sessao    url=${BASE_URL}/api/company    json=${requestJson}    expected_status=400
+
+    Should Be Equal As Strings    ${response.json()}[alert][0]    Essa companhia já está cadastrada. Verifique o nome, CNPJ e a razão social da companhia.
     
 Editar cadastro empresa com sucesso
     ${requestJson}    Gerar dados empresa  
-    ${response}       PUT On Session    alias=sessao    url=https://chips.qacoders-academy.com.br/api/company/${COMPANY_ID}    json=${requestJson}    expected_status=201
+    ${response}       PUT On Session    alias=sessao    url=${BASE_URL}/api/company/${COMPANY_ID}    json=${requestJson}    expected_status=201
     Logar requisicoes    CT_CAT_P01 - Editar cadastro de empresa com sucesso    ${requestJson}    ${response.text}
 
     Should Be Equal As Strings    ${response.json()}[msg]                  Companhia atualizada com sucesso.
@@ -99,12 +130,9 @@ Editar cadastro empresa com corporatename vazio
     ${requestJson}    Gerar dados empresa     
     Set To Dictionary    ${requestJson}    corporateName=${EMPTY}
 
-    ${response}       PUT On Session    alias=sessao    url=https://chips.qacoders-academy.com.br/api/company/${COMPANY_ID}    json=${requestJson}
+    ${response}       PUT On Session    alias=sessao    url=${BASE_URL}/api/company/${COMPANY_ID}    json=${requestJson}
+    Logar requisicoes    CT_CAT_N01 - Editar cadastro de empresa com corporatename vazio    ${requestJson}    ${response.text}
 
-    Log To Console    \n------------ EDIÇÃO ------------
-    Log To Console    ${response.text}
-    Log To Console    -------------------------------\n
-    
     Should Be Equal As Strings    ${response.json()}[msg]                  Companhia atualizada com sucesso.
     Should Be Equal As Strings    ${COMPANY_ID}                            ${response.json()}[updatedCompany][_id]
     Should Be Equal As Strings    ${requestJson}[corporateName]            ${response.json()}[updatedCompany][corporateName]
@@ -114,4 +142,4 @@ Editar cadastro empresa com corporatename vazio
     Should Be Equal As Strings    ${requestJson}[telephone]                ${response.json()}[updatedCompany][telephone]
     Should Be Equal As Strings    ${requestJson}[serviceDescription]       ${response.json()}[updatedCompany][serviceDescription]
     Should Be Equal As Strings    ${requestJson}[matriz]                   ${response.json()}[updatedCompany][matriz]
-    Should Be Equal As Strings    ${requestJson}[serviceDescription]       ${response.json()}[updatedCompany][serviceDescription]    
+    Should Be Equal As Strings    ${requestJson}[serviceDescription]       ${response.json()}[updatedCompany][serviceDescription]   

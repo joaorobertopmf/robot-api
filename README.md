@@ -14,7 +14,11 @@ A estrutura do repositório é organizada da seguinte forma:
 ├── Tests/                        # Pasta raiz de todos os testes  
 │   └── Auth                      # Contém testes relacionados ao login
 │   └── Company                   # Contém testes relacionados a empresa
-└── README.md                     # Documentação do projeto
+├── README.md                     # Documentação do projeto
+└── requirements.txt              # Arquivo que contém as bibliotecas necessárias para o projeto rodar
+
+
+
 
 ```
 

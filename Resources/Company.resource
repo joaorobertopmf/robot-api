@@ -2,7 +2,6 @@
 Library               Collections
 Library               DateTime
 Resource              Common.resource
-Resource              Login.resource
 Resource              Utils.resource
 
 *** Variables ***
@@ -11,17 +10,6 @@ ${CNPJ}
 
 
 *** Keywords ***
-Preparar para cadastrar empresa
-    Logar como administrador
-
-Preparar para cadastrar empresa com CNPJ existente
-    Preparar para cadastrar empresa
-    Cadastrar empresa
-
-Preparar para editar empresa
-    Logar como administrador
-    Cadastrar empresa
-
 Gerar endereco empresa
     ${state}         FakerBR.State Abbr
     ${zipCode}       FakerBR.Random Number    digits=8    fix_len=${true}

@@ -14,8 +14,7 @@ Gerar numero de telephone
     ${tamanhoLista}    Get Length    ${ddds}
     ${numeroAleatorio}    Evaluate    random.randint(0, ${tamanhoLista} - 1)
     ${ddd_aleatorio}    Set Variable    ${ddds}[${numeroAleatorio}]
-
-    #${noveDigitos}    FakerLibrary.Random Number    digits=9    fix_len=true   
+ 
     ${noveDigitos}    Set Variable    9
     FOR    ${counter}    IN RANGE    0    9
         ${numAleatorio}    Evaluate    random.randint(0, 9)

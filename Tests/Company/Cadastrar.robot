@@ -6,10 +6,11 @@ Library     RequestsLibrary
 *** Test Cases ***
 CT_CCA_P01 - Cadastrar empresa com sucesso   
     [Tags]    funcional    CT_CCA_P01
-    [Setup]    Logar como administrador
-    Cadastrar empresa com sucesso
+    [Setup]    Preparar para cadastrar empresa
+    Logar como administrador
+    Cadastrar empresa
 
 CT_CCA_N01 - Cadastrar empresa com CNPJ existente
     [Tags]    nao-funcional    CT_CCA_N01
-    [Setup]   Criar massa de teste
+    [Setup]    Preparar para cadastrar empresa com CNPJ existente
     Cadastrar empresa com CNPJ existente

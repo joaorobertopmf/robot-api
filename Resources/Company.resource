@@ -11,12 +11,16 @@ ${CNPJ}
 
 
 *** Keywords ***
-Logar como administrador
-    Realizar Login    mail=sysadmin@qacoders.com    password=1234@Test
-    
-Criar massa de teste
+Preparar para cadastrar empresa
     Logar como administrador
-    Cadastrar empresa com sucesso
+
+Preparar para cadastrar empresa com CNPJ existente
+    Preparar para cadastrar empresa
+    Cadastrar empresa
+
+Preparar para editar empresa
+    Logar como administrador
+    Cadastrar empresa
 
 Gerar endereco empresa
     ${state}         FakerBR.State Abbr
@@ -72,15 +76,14 @@ Gerar empresa
 
     #Log To Console    ${empresa}
     RETURN    ${empresa}   
-    
 
-Cadastrar empresa com sucesso
+Cadastrar empresa
     ${requestJson}    Gerar empresa
     ${response}    POST On Session    alias=sessao    url=${BASE_URL}/api/company    json=${requestJson}    expected_status=201    
     Set Test Variable    ${COMPANY_ID}    ${response.json()}[newCompany][_id]
     Set Test Variable    ${CNPJ}    ${response.json()}[newCompany][registerCompany]
-    Log To Console    ****Setou o CNPJ para: ${CNPJ}****
-    Logar requisicoes    CT_CCA_P01 - Cadastrar empresa com sucesso    ${requestJson}    ${response.text}
+
+    Logar requisicoes    ${TEST_NAME}    ${requestJson}    ${response.text}
 
     Should Be Equal As Strings        ${response.json()}[msg]                  Olá a companhia ${requestJson}[corporateName] foi cadastrada com sucesso.
     Should Be Equal As Strings        ${requestJson}[corporateName]            ${response.json()}[newCompany][corporateName]
@@ -106,14 +109,15 @@ Cadastrar empresa com sucesso
 Cadastrar empresa com CNPJ existente
     ${requestJson}    Gerar empresa
     Set To Dictionary    ${requestJson}    registerCompany=${CNPJ} 
-    ${response}    POST On Session    alias=sessao    url=${BASE_URL}/api/company    json=${requestJson}    expected_status=400
+    ${response}    POST On Session    alias=sessao    url=${BASE_URL}/api/company    json=${requestJson}    expected_status=400    
+    Logar requisicoes    ${TEST_NAME}    ${requestJson}    ${response.text}
 
     Should Be Equal As Strings    ${response.json()}[alert][0]    Essa companhia já está cadastrada. Verifique o nome, CNPJ e a razão social da companhia.
     
-Editar cadastro empresa com sucesso
+Editar cadastro de empresa com sucesso
     ${requestJson}    Gerar dados empresa  
     ${response}       PUT On Session    alias=sessao    url=${BASE_URL}/api/company/${COMPANY_ID}    json=${requestJson}    expected_status=201
-    Logar requisicoes    CT_CAT_P01 - Editar cadastro de empresa com sucesso    ${requestJson}    ${response.text}
+    Logar requisicoes    ${TEST_NAME}    ${requestJson}    ${response.text}
 
     Should Be Equal As Strings    ${response.json()}[msg]                  Companhia atualizada com sucesso.
     Should Be Equal As Strings    ${COMPANY_ID}                            ${response.json()}[updatedCompany][_id]
@@ -126,12 +130,12 @@ Editar cadastro empresa com sucesso
     Should Be Equal As Strings    ${requestJson}[matriz]                   ${response.json()}[updatedCompany][matriz]
     Should Be Equal As Strings    ${requestJson}[serviceDescription]       ${response.json()}[updatedCompany][serviceDescription]  
     
-Editar cadastro empresa com corporatename vazio
+Editar cadastro de empresa com corporatename vazio
     ${requestJson}    Gerar dados empresa     
     Set To Dictionary    ${requestJson}    corporateName=${EMPTY}
 
     ${response}       PUT On Session    alias=sessao    url=${BASE_URL}/api/company/${COMPANY_ID}    json=${requestJson}
-    Logar requisicoes    CT_CAT_N01 - Editar cadastro de empresa com corporatename vazio    ${requestJson}    ${response.text}
+    Logar requisicoes    ${TEST_NAME}    ${requestJson}    ${response.text}
 
     Should Be Equal As Strings    ${response.json()}[msg]                  Companhia atualizada com sucesso.
     Should Be Equal As Strings    ${COMPANY_ID}                            ${response.json()}[updatedCompany][_id]

@@ -11,8 +11,7 @@ Realizar Login
     [Arguments]    ${mail}    ${password}    
     ${requestJson}    Create Dictionary    mail=${mail}    password=${password}   
     ${response}    POST    url=${BASE_URL}/api/login    json=${requestJson}    expected_status=200        
-
-    Logar requisicoes    ${TEST_NAME}    ${requestJson}    ${response.text}
+    Logar requisicoes    ${requestJson}    ${response.text}
     
     Status Should Be    200
     Should Be Equal As Strings    ${response.json()}[user][mail]    ${mail}

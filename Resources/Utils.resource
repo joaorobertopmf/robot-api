@@ -21,13 +21,10 @@ Gerar numero de telephone
         ${noveDigitos}    Set Variable    ${noveDigitos}${numAleatorio}        
     END
 
-    #Log To Console     *** ${codigoBrasil}${ddd_aleatorio}${noveDigitos} ***
-
     RETURN    ${codigoBrasil}${ddd_aleatorio}${noveDigitos}
 
 Logar requisicoes    
-    [Arguments]    ${nomeCasoTeste}    ${requestBody}    ${responseBody}
-    Log To Console    \n------------ ${nomeCasoTeste} ------------
+    [Arguments]    ${requestBody}    ${responseBody}
     Log To Console    => REQUEST BODY\n
     Log To Console    ${requestBody}\n\n
     Log To Console    => RESPONSE BODY\n

@@ -12,7 +12,7 @@ ${CNPJ}
 *** Keywords ***
 Gerar endereco empresa
     ${state}         FakerBR.State Abbr
-    ${zipCode}       FakerBR.Random Number    digits=8    fix_len=${true}
+    ${zipCode}       FakerBR.Postcode    numbers_only=${True}
     ${city}          FakerBR.City
     ${district}      FakerBR.Neighborhood
     ${street}        FakerBR.StreetName
@@ -62,7 +62,6 @@ Gerar empresa
     &{empresa}    Gerar dados empresa
     Set To Dictionary    ${empresa}    address=${listaDeEnderecos}        
 
-    #Log To Console    ${empresa}
     RETURN    ${empresa}   
 
 Cadastrar empresa
@@ -71,7 +70,7 @@ Cadastrar empresa
     Set Test Variable    ${COMPANY_ID}    ${response.json()}[newCompany][_id]
     Set Test Variable    ${CNPJ}    ${response.json()}[newCompany][registerCompany]
 
-    Logar requisicoes    ${TEST_NAME}    ${requestJson}    ${response.text}
+    Logar requisicoes    ${requestJson}    ${response.text}
 
     Should Be Equal As Strings        ${response.json()}[msg]                  Olá a companhia ${requestJson}[corporateName] foi cadastrada com sucesso.
     Should Be Equal As Strings        ${requestJson}[corporateName]            ${response.json()}[newCompany][corporateName]
@@ -98,14 +97,14 @@ Cadastrar empresa com CNPJ existente
     ${requestJson}    Gerar empresa
     Set To Dictionary    ${requestJson}    registerCompany=${CNPJ} 
     ${response}    POST On Session    alias=sessao    url=${BASE_URL}/api/company    json=${requestJson}    expected_status=400    
-    Logar requisicoes    ${TEST_NAME}    ${requestJson}    ${response.text}
+    Logar requisicoes    ${requestJson}    ${response.text}
 
     Should Be Equal As Strings    ${response.json()}[alert][0]    Essa companhia já está cadastrada. Verifique o nome, CNPJ e a razão social da companhia.
     
 Editar cadastro de empresa com sucesso
     ${requestJson}    Gerar dados empresa  
     ${response}       PUT On Session    alias=sessao    url=${BASE_URL}/api/company/${COMPANY_ID}    json=${requestJson}    expected_status=201
-    Logar requisicoes    ${TEST_NAME}    ${requestJson}    ${response.text}
+    Logar requisicoes    ${requestJson}    ${response.text}
 
     Should Be Equal As Strings    ${response.json()}[msg]                  Companhia atualizada com sucesso.
     Should Be Equal As Strings    ${COMPANY_ID}                            ${response.json()}[updatedCompany][_id]
@@ -123,7 +122,7 @@ Editar cadastro de empresa com corporatename vazio
     Set To Dictionary    ${requestJson}    corporateName=${EMPTY}
 
     ${response}       PUT On Session    alias=sessao    url=${BASE_URL}/api/company/${COMPANY_ID}    json=${requestJson}
-    Logar requisicoes    ${TEST_NAME}    ${requestJson}    ${response.text}
+    Logar requisicoes    ${requestJson}    ${response.text}
 
     Should Be Equal As Strings    ${response.json()}[msg]                  Companhia atualizada com sucesso.
     Should Be Equal As Strings    ${COMPANY_ID}                            ${response.json()}[updatedCompany][_id]

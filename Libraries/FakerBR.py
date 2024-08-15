@@ -33,6 +33,12 @@ class FakerBR:
     
     def street_name(self):
         return self.faker.street_name()
+    
+    def postcode(self, numbers_only: Optional[bool] = False) -> str:
+        postcode = self.faker.postcode()
+        if numbers_only == True:
+            postcode = re.sub(r'\D', '', postcode)
+        return postcode
         
     def random_number(self, digits: Optional[int], fix_len: bool = ...) -> int:
         return self.faker.random_number(digits=digits, fix_len=fix_len)

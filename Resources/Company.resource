@@ -4,11 +4,6 @@ Library               DateTime
 Resource              Common.resource
 Resource              Utils.resource
 
-*** Variables ***
-${COMPANY_ID}
-${CNPJ}
-
-
 *** Keywords ***
 Gerar endereco empresa
     ${state}         FakerBR.State Abbr

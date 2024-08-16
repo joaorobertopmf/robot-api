@@ -25,7 +25,7 @@ Gerar numero de telephone
 
 Logar requisicoes    
     [Arguments]    ${requestBody}    ${responseBody}
-    Log To Console    => REQUEST BODY\n
+    Log To Console    \n=> REQUEST BODY\n
     Log To Console    ${requestBody}\n\n
     Log To Console    => RESPONSE BODY\n
     Log To Console    ${responseBody}
